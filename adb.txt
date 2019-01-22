@@ -1,0 +1,7 @@
+﻿打开安卓画线程式：adb shell settings put system pointer_location 1
+关闭安卓画线程式：adb shell settings put system pointer_location 0
+打开安卓报点程式：adb shell settings put system show_touches 1
+关闭安卓报点程式：adb shell settings put system show_touches 0
+
+用AM启动一个APP
+am start -n com.qualcomm.qti.launcher/.MainActivity

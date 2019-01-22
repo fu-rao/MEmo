@@ -1,0 +1,114 @@
+/***************************************************************************************************/
+MediaPlayer ：可以播放多种格式的音源，如 mp3、flac、wma、ogg、wav 等，
+AudioTrack  ：只能播放解码后的 PCM 数据流。
+android\frameworks/av/media/libmedia/AudioTrack.cpp
+android\frameworks/av/media/libmedia/mediaplayer.cpp
+
+/***************************************************************************************************/
+mediaserver.rc文件
+service media /system/bin/mediaserver
+    class main
+    user media
+    group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm
+    ioprio rt 4
+    writepid /dev/cpuset/foreground/tasks /dev/stune/foreground/tasks
+/*------------------------------------------------------------*/
+android\frameworks\av\media\mediaserver 系统启动时由 init 进程运行
+main_mediaserver.cpp
+	main(){
+	MediaPlayerService::instantiate();
+    ResourceManagerService::instantiate();
+    registerExtensions();
+    ProcessState::self()->startThreadPool();
+    IPCThreadState::self()->joinThreadPool();
+	}
+/*------------------------------------------------------------*/
+android\frameworks\av\media\audioserver
+audioserver.rc文件
+service audioserver /system/bin/audioserver
+    class main
+    user audioserver
+    # media gid needed for /dev/fm (radio) and for /data/misc/media (tee)
+    group audio camera drmrpc inet media mediadrm net_bt net_bt_admin net_bw_acct qcom_diag
+    ioprio rt 4
+    writepid /dev/cpuset/foreground/tasks /dev/stune/foreground/tasks
+/*------------------------------------------------------------*/
+main_audioserver.cpp 编译生成的可执行文件存放在 /system/bin/audioserver，系统启动时由 init 进程运行
+	main（）
+		{
+		ALOGI("ServiceManager: %p", sm.get());
+        AudioFlinger::instantiate();				//启动AF
+        AudioPolicyService::instantiate();			//启动AP
+        RadioService::instantiate();				//
+#ifdef DOLBY_ENABLE
+        DolbyMemoryService::instantiate();
+#endif
+        SoundTriggerHwService::instantiate();
+        ProcessState::self()->startThreadPool();
+        IPCThreadState::self()->joinThreadPool();
+		}
+audioserver
+/*------------------------------------------------------------*/
+android/frameworks/av/./services/audioflinger/AudioFlinger.cpp
+AudioFlinger::openOutput
+	AudioFlinger::openOutput_l
+		outHwDev->openOutputStream()
+/*------------------------------------------------------------*/	
+android/frameworks/av/services/audioflinger/AudioHwDevice.cpp
+AudioHwDevice::openOutputStream()
+	AudioStreamOut *outputStream = new AudioStreamOut(this, flags);
+	outputStream->open
+/*------------------------------------------------------------*/	
+android/frameworks/av/services/audioflinger/AudioStreamOut.cpp
+AudioStreamOut::open()
+	hwDev()->open_output_stream
+/*------------------------------------------------------------*/
+android/hardware/qcom/audio/msm8909/hal/audio_hw.c
+adev_open
+	adev->device.open_output_stream = adev_open_output_stream;
+		adev_open_output_stream()
+/*------------------------------------------------------------*/
+android/hardware/qcom/audio/msm8909/hal/audio_hw.c
+out_write()
+if(is_offload_usecase())
+	compress_write()
+	compress_start()
+else
+	if(usecase == USECASE_AUDIO_PLAYBACK_AFE_PROXY)
+		pcm_mmap_write()
+		else
+		pcm_write()
+/*------------------------------------------------------------*/
+external/tinyalsa/pcm.c
+pcm_write()
+	ioctl(pcm->fd, SNDRV_PCM_IOCTL_WRITEI_FRAMES, &x)
+/*------------------------------------------------------------*/	
+android/kernel/sound/core/pcm_native.c	
+snd_pcm_playback_ioctl1()
+	case SNDRV_PCM_IOCTL_WRITEI_FRAMES:
+		snd_pcm_lib_write
+/*------------------------------------------------------------*/
+./external/tinycompress/compress.c		
+/******************************************************************************************************/
+        {AUDIO_OUTPUT_FLAG_DIRECT,          "DIRECT"},
+        {AUDIO_OUTPUT_FLAG_PRIMARY,         "PRIMARY"},
+        {AUDIO_OUTPUT_FLAG_FAST,            "FAST"},
+        {AUDIO_OUTPUT_FLAG_DEEP_BUFFER,     "DEEP_BUFFER"},
+        {AUDIO_OUTPUT_FLAG_COMPRESS_OFFLOAD,"COMPRESS_OFFLOAD"},
+        {AUDIO_OUTPUT_FLAG_NON_BLOCKING,    "NON_BLOCKING"},
+        {AUDIO_OUTPUT_FLAG_HW_AV_SYNC,      "HW_AV_SYNC"},
+        {AUDIO_OUTPUT_FLAG_RAW,             "RAW"},
+        {AUDIO_OUTPUT_FLAG_SYNC,            "SYNC"},
+        {AUDIO_OUTPUT_FLAG_IEC958_NONAUDIO, "IEC958_NONAUDIO"},
+        {AUDIO_OUTPUT_FLAG_NONE,            "NONE"},        // must be last
+/*****************************************************************************************************/ 
+AUDIO_OUTPUT_FLAG_FAST				    FastMixer				low latency playback	msm-pcm-q6-v2.c
+	
+		
+AUDIO_OUTPUT_FLAG_COMPRESS_OFFLOAD		Offload Therad			Commpressed offload		msm-compress-q6-v2.c
+
+
+AUDIO_OUTPUT_FLAG_DEEP_BUFFER           MixerThread				Dep buffer playback     msm-pcm-q6-v2.c
+
+
+AUDIO_OUTPUT_FLAG_DIRECT				direct Output Thread  	Multl Channel playback  msm-multi-ch-pcm-q6-v2.c

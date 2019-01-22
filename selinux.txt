@@ -1,0 +1,7 @@
+selinux
+1)untrusted_app  第三方app，没有Android平台签名，没有system权限
+2)platform_app    有android平台签名，没有system权限
+3)system_app      有android平台签名和system权限
+
+临时关闭SElinux
+setenforce 0
