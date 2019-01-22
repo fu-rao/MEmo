@@ -1,0 +1,14 @@
+关闭子系统重启系统功能，并且USER有效
+#DISABLE SSR  
+ifeq ($(TARGET_BUILD_VARIANT),user)
+	PRODUCT_PROPERTY_OVERRIDES += \	
+	persist.sys.ssr.restart_level=ALL_ENABLE
+endif
+
+修改SBL1 振动器强度
+AMSS/boot_images/core/boot/secboot3/src/boot_extern_pmic_interface.c
+  uint16  pm_vib_drv_volt = 2200; 
+  uint16  pm_vib_drv_volt = 2800; 
+  
+关闭POWERKEY复位功能
+  qcom,support-reset = <0>;
