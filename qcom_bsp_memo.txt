@@ -12,3 +12,7 @@ AMSS/boot_images/core/boot/secboot3/src/boot_extern_pmic_interface.c
   
 关闭POWERKEY复位功能
   qcom,support-reset = <0>;
+
+USB飞标准适配器
+  android/kernel/drivers/usb/phy/phy-msm-usb.c
+  static bool floated_charger_enable = 1;

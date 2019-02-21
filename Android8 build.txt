@@ -1,0 +1,12 @@
+serverx-S2600CO:~/work_folder/furao/sdm450/android$ ln -s build/soong/root.bp ./Android.bp
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android$ ln -s build/soong/bootstrap.bash ./bootstrap.bash
+
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android/build$ ln -s make/CleanSpec.mk ./CleanSpec.mk
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android/build$ ln -s make/buildspec.mk.default ./buildspec.mk.default
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android/build$ ln -s make/core core
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android/build$ ln -s make/envsetup.sh envsetup.sh
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android/build$ ln -s make/target target
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android/build$ ln -s make/tools tools
+
+
+furao@ctfserverx-S2600CO:~/work_folder/furao/sdm450/android/vendor/nxp/interfaces$ ln -s opensource/nfc/prop_pickup.bp ./Android.bp

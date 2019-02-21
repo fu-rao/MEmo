@@ -46,3 +46,5 @@ Windows共享SAMBA配置
 	lunch msm8909_512-userdebug 512内存版本
 	<<choosecombo 1 msm8909 userdebug>>
 	make -j16
+清楚GIT
+	find . -name ".git" | xargs rm -Rf
