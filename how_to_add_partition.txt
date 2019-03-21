@@ -1,0 +1,114 @@
+
+
+/AMSS/contents.xml
++        <file_name>iflytek.img</file_name>
++      <file_path>../android/out/target/product/msm8909w/</file_path>
++      </file_ref>
++      <file_ref sparse_image_path="true" minimized="true" fastboot="true">
+         <file_name>userdata.img</file_name>
+
+cp_bin_files_8909w.sh
++cp  -vf $work_place/AMSS/common/build/bin/BIN-META-OSS/sparse_images/iflytek_1.img             $OUT_BIN_PATH
++sed -i 's/iflytek_1.img//g'     rawprogram_unsparse.xml
+
+android/device/qcom/msm8909w/BoardConfig.mk
+-BOARD_USERDATAIMAGE_PARTITION_SIZE := 1860648960
++BOARD_USERDATAIMAGE_PARTITION_SIZE := 1808220160
+ BOARD_CACHEIMAGE_PARTITION_SIZE := 67108864
+ BOARD_PERSISTIMAGE_PARTITION_SIZE := 20971520
++BOARD_IFLYTEKIMAGE_PARTITION_SIZE := 52428800
+
+android/device/qcom/msm8909w/common/generate_extra_images.mk
+android/vendor/qcom/build/tasks/generate_extra_images.mk
+ #----------------------------------------------------------------------
++# Generate iflytek image (iflytek.img)
++#----------------------------------------------------------------------
++ifneq ($(strip $(TARGET_NO_KERNEL)),true)
++
++TARGET_OUT_IFLYTE := $(PRODUCT_OUT)/iflytek
++
++INTERNAL_IFLYTEKIMAGE_FILES := \
++       $(filter $(TARGET_OUT_IFLYTE)/%,$(ALL_DEFAULT_INSTALLED_MODULES))
++
++INSTALLED_IFLYTEKIMAGE_TARGET := $(PRODUCT_OUT)/iflytek.img
++
++define build-iflytekimage-target
++    $(call pretty,"Target iflytek fs image: $(INSTALLED_IFLYTEKIMAGE_TARGET)")
++    @mkdir -p $(TARGET_OUT_IFLYTE)
++    $(hide) $(MKEXTUSERIMG) -s $(TARGET_OUT_IFLYTE) $@ ext4 iflytek $(BOARD_IFLYTEKIMAGE_PARTITION_SIZE)
++    $(hide) chmod a+r $@
++    $(hide) $(call assert-max-image-size,$@,$(BOARD_IFLYTEKIMAGE_PARTITION_SIZE),yaffs)
++endef
++
++$(INSTALLED_IFLYTEKIMAGE_TARGET): $(MKEXTUSERIMG) $(MAKE_EXT4FS) $(INTERNAL_IFLYTEKIMAGE_FILES)
++       $(build-iflytekimage-target)
++
++ALL_DEFAULT_INSTALLED_MODULES += $(INSTALLED_IFLYTEKIMAGE_TARGET)
++ALL_MODULES.$(LOCAL_MODULE).INSTALLED += $(INSTALLED_IFLYTEKIMAGE_TARGET)
++
++endif
++
+
+android/device/qcom/msm8909w/common/rootdir/etc/init.qcom.rc
++    mkdir /iflytek 0771 system system
+     mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
+     mkdir /mnt/media_rw/usbotg 0700 media_rw media_rw
+     mkdir /mnt/media_rw/uicc0 0700 media_rw media_rw
+@@ -227,7 +228,9 @@ on post-fs-data
+     # Mounting of persist is moved to 'on emmc-fs' and 'on fs' sections
+     # We chown/chmod /persist again so because mount is run as root + defaults
+     chown system system /persist
++    chown system system /iflytek
+     chmod 0775 /persist
++    chmod 0775 /iflytek
+
+
+android/device/qcom/msm8909w/init.target.rc b/android/device/qcom/msm8909w/init.target.rc
++    wait /dev/block/bootdevice/by-name/iflytek
++    mount ext4 /dev/block/bootdevice/by-name/iflytek /iflytek nosuid nodev barrier=1
++    restorecon_recursive /iflytek
++ 
++
+
+android/device/qcom/msm8909w/msm8909w.mk
++#cp file to iflytek 
++PRODUCT_COPY_FILES += \
++       device/qcom/msm8909w/list.txt:iflytek/list.txt
+
+android/device/qcom/msm8909w/sepolicy/common/file.te
++#iflytek_file file
++type iflytek_file, file_type;
++
+
+android/device/qcom/msm8909w/sepolicy/common/file_contexts
+ ###################################
++# iflytek files
++#
++/iflytek(/.*)?                                                                 u:object_r:iflytek_file:s0
++
++
++###################################
+
+android/device/qcom/msm8909w/sepolicy/common/init.te
+@@ -5,6 +5,7 @@ allow init {
+     adsprpcd_file
+     cache_file
+     persist_file
++    iflytek_file
+     storage_file
+ }:dir mounton;
+
+android/device/qcom/msm8909w/sepolicy/common/system_app.te
++allow system_app iflytek_file:dir rw_dir_perms;
+
+
+AMSS/common/build/partition.xml
+        <partition label="persist" size_in_kb="20480" type="6C95E238-E343-4BA8-B489-8681ED22AD0B" bootable="false" 
+readonly="true" filename="persist.img" sparse="true"/>
+
++       <partition label="iflytek" size_in_kb="51200" type="6C95E238-E343-4BA8-B489-8681ED22AD0B" bootable="false" 
+readonly="false" filename="iflytek.img" sparse="true"/>
+
+
+
+

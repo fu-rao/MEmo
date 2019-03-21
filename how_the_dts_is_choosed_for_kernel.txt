@@ -66,3 +66,5 @@ PREEMPT Thu Dec 28 15:53:23 CST 2017
 ÓÃXMLÉú³ÉCDT.BIN
 python cdt_generator.py cdt_array.xml cdt_array.bin
 
+python cdt_generator.py jedec_lpddr3_single_channel.xml platform_ddr.bin
+
