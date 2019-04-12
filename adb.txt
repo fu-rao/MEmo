@@ -5,3 +5,16 @@
 
 用AM启动一个APP
 am start -n com.qualcomm.qti.launcher/.MainActivity
+
+模拟按键
+$adb shell input keyevent 26            // power
+$adb shell input keyevent 4            //模拟返回键（BACK）
+$adb shell input keyevent 82          //模拟菜单键（MENU）
+$adb shell input keyevent 3            //模拟主页键（HOME）
+
+截屏 录屏
+adb shell screencap /sdcard/test.png
+adb shell screenrecord  sdcard/sss.mp4
+
+应用显示到副屏
+adb shell am start -n com.android.settings/.Settings   --display 1

@@ -17,3 +17,11 @@ AMSS/boot_images/core/boot/secboot3/src/boot_extern_pmic_interface.c
 USB飞标准适配器
   android/kernel/drivers/usb/phy/phy-msm-usb.c
   static bool floated_charger_enable = 1;
+
+不打印调试信息：
+主要是修改 persist.console.silent.config 属性，
+           persist.console.silent.config = 1是不打印，
+           persist.console.silent.config = 0继续打印。
+   修改的文件，
+ 将手机中的build.prop导出， 直接修改，再push进去；
+修改 device/qcom/msmXXX/system.prop，编译systemimage。
