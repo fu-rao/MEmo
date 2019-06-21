@@ -25,3 +25,6 @@ USB飞标准适配器
    修改的文件，
  将手机中的build.prop导出， 直接修改，再push进去；
 修改 device/qcom/msmXXX/system.prop，编译systemimage。
+
+学习开始文档
+SP80-NR964-4SC C

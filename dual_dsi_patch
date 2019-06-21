@@ -5995,3 +5995,62 @@ index dc6e1bd..12e1911 100755
      <SensorName>imx378</SensorName>
      <ChromatixName>imx378_chromatix</ChromatixName>
      <ModesSupported>1</ModesSupported>
+
+
+
+        Subject:机器开机时概率性卡死
+        Bug:NA
+        Rootcause:主副屏注册流程互锁
+        Effect:NA
+        Solution:调整副屏启动顺序
+
+diff --git a/android/hardware/qcom/display/sdm/libs/hwc2/hwc_session.cpp b/android/hardware/qcom/display/sdm/libs/hwc2/hwc_session.cpp
+index fdea696..a9fe4d5 100755
+--- a/android/hardware/qcom/display/sdm/libs/hwc2/hwc_session.cpp
++++ b/android/hardware/qcom/display/sdm/libs/hwc2/hwc_session.cpp
+@@ -189,8 +189,8 @@ int HWCSession::Init() {
+     DLOGE("Primary display type not recognized. Error = %d", error);
+     return -EINVAL;
+   }
+-
+-  if (hw_disp_info.type == kHDMI) {
++  if(0){
++  //if (hw_disp_info.type == kHDMI) {
+     status = 0;
+     hdmi_is_primary_ = true;
+     // Create display if it is connected, else wait for hotplug connect event.
+@@ -904,6 +904,7 @@ int32_t HWCSession::ConnectDisplay(int disp) {
+   hwc_display_[HWC_DISPLAY_PRIMARY]->GetFrameBufferResolution(&primary_width, &primary_height);
+ 
+   if (disp == HWC_DISPLAY_EXTERNAL) {
++        sleep(1);
+     status = CreateExternalDisplay(disp, primary_width, primary_height);
+   } else {
+     DLOGE("Invalid display type");
+
+            Subject:副屏坐标异常
+            Bug:NA
+            Rootcause:从底层获得的设备长宽异常
+            Effect:NA
+            Solution: 通过DeviceName判断屏幕id，并设置正确的屏幕物理长宽
+
+diff --git a/android/frameworks/native/services/inputflinger/InputReader.cpp b/android/frameworks/native/services/inputflinger/InputReader.cpp
+index 05bbb17..04abc6a 100755
+--- a/android/frameworks/native/services/inputflinger/InputReader.cpp
++++ b/android/frameworks/native/services/inputflinger/InputReader.cpp
+@@ -3536,6 +3536,14 @@ void TouchInputMapper::configureSurface(nsecs_t when, bool* outResetNeeded) {
+     } else {
+         newViewport.setNonDisplayViewport(rawWidth, rawHeight);
+     }
++
++    if(strcmp(getDeviceName().string(),"hynitron-ts-stp") == 0){
++               newViewport.displayId = 1;
++               newViewport.deviceHeight = 320;
++    }else{
++               newViewport.displayId = 0;
++    }
++
+     bool viewportChanged = mViewport != newViewport;
+     if (viewportChanged) {
+         mViewport = newViewport;
+     

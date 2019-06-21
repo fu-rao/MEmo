@@ -1,0 +1,55 @@
+qpnp-smd5.c
+	rc = smb5_init_usb_psy(chip);
+		.name = "usb",
+
+	rc = smb5_init_usb_main_psy(chip);
+		.name		= "main",
+
+	rc = smb5_init_usb_port_psy(chip);
+		.name		= "pc_port",
+		
+	rc = smb5_init_batt_psy(chip);
+		.name = "battery",
+
+qpnp-qp.c
+	qg_init_psy
+		.name = "bms",
+
+smb1355-charger.c
+	smb1355_init_parallel_psy
+		.name			= "parallel"
+
+./drivers/power/supply/qcom/smb-lib.c
+	typec_attach_detach_irq_handler----typec_src_insertion
+	usb_source_change_irq_handler
+	POWER_SUPPLY_PROP_PD_ACTIVE	-----smblib_set_prop_pd_active	
+	调用函数smblib_rerun_apsd_if_required
+	
+	usb_plugin_irq_handler
+	调用函数smblib_usb_plugin_locked
+./drivers/power/supply/qcom/smb-lib.c
+	smblib_usb_plugin_locked
+	smblib_rerun_apsd_if_required
+	分别调用smblib_request_dpdm函数
+./drivers/power/supply/qcom/smb-lib.c
+	smblib_request_dpdm函数 
+		dpdm-supply
+		chg->dpdm_reg = devm_regulator_get(chg->dev, "dpdm");
+PMI632.dtsi
+	dpdm-supply = <&qusb_phy>;	
+msm8953.dtsi
+	qusb_phy: qusb@79000 {
+		compatible = "qcom,qusb2phy";
+./drivers/usb/phy/phy-msm-qusb.c
+	:1253:	{ .compatible = "qcom,qusb2phy", },
+./drivers/power/supply/qcom/smb-lib.c
+	smblib_request_dpdm函数 
+		regulator_is_enabled
+			regulator_enable
+./drivers/usb/phy/phy-msm-qusb.c	
+	static struct regulator_ops qusb_phy_dpdm_regulator_ops = {
+	.enable		= qusb_phy_dpdm_regulator_enable,
+	.disable	= qusb_phy_dpdm_regulator_disable,
+	.is_enabled	= qusb_phy_dpdm_regulator_is_enabled,
+};
+	

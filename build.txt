@@ -1,3 +1,6 @@
 ∑¥±‡“ÎDTS
 ~/qcom/8909_src/Q1131_msm8909/android/out/target/product/msm8909/obj/KERNEL_OBJ/scripts/dtc$ ./dtc -I dtb -O dts -o 
 ../../../../../../../../temp.dts  ../../arch/arm/boot/dts/msm8909-mtp.dtb
+
+
+furao@ctfserverx-S2600CO:~/work_folder/furao/q2121_r42_base/msm8909w-law2.0-r42/android/out/target/product/msm8909w/obj/KERNEL_OBJ/scripts/dtc$ ./dtc -I dtb -O dts -o ../../../../../../../../temp.dts ../../arch/arm/boot/dts/qcom/msm8909w-wtp.dtb
